@@ -211,6 +211,7 @@ class _WebviewState extends State<Webview> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text('Web View')),
       body: Stack(
         children: [
           if (_markers.isNotEmpty)
