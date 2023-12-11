@@ -1,3 +1,4 @@
+// Import necessary packages and libraries
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:scr_amenities/screens/webView.dart';
@@ -6,8 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:scr_amenities/screens/base_url.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
+// Define a data class representing geographical coordinates and a platform
 class GridPoint {
   final double latitude;
   final double longitude;
@@ -18,6 +19,7 @@ class GridPoint {
       required this.longitude,
       required this.platform});
 
+  // Factory method to create a GridPoint from JSON data
   factory GridPoint.fromJson(Map<String, dynamic> json) {
     return GridPoint(
       latitude: double.parse(json['latitude'] as String),
@@ -27,6 +29,7 @@ class GridPoint {
   }
 }
 
+// Define a StatefulWidget for the AmenitiesList screen
 class AmenitiesList extends StatefulWidget {
   final String stnName;
   final String amenityType;
@@ -41,7 +44,9 @@ class AmenitiesList extends StatefulWidget {
   _AmenitiesListState createState() => _AmenitiesListState();
 }
 
+// Define the state for the AmenitiesList screen
 class _AmenitiesListState extends State<AmenitiesList> {
+    // Declare variables to store data
   List<Map<String, dynamic>> dataa = [];
   late Future<List<Map<String, dynamic>>> amenitiesData;
   late Future<String> webviewUrl;
@@ -61,14 +66,16 @@ class _AmenitiesListState extends State<AmenitiesList> {
   @override
   void initState() {
     super.initState();
+        // Initialize data fetching and location retrieval
     amenitiesData = fetchData();
     webviewUrl = fetchWebviewUrl();
     _getUserLocation();
-
+    // Fetch and process additional data based on station name
     fetchLocationName().then((locationName) {
       gridPoints = fetchGridPoints(locationName);
       getCompleteData(locationName);
 
+      // Fetch platforms based on the station name
       fetchPlatforms(widget.stnName).then((platforms) {
         // Use a Set to eliminate duplicate platform values
         final uniquePlatforms = platforms

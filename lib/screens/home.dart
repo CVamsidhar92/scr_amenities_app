@@ -1,3 +1,4 @@
+// Importing necessary packages and files
 import 'package:flutter/material.dart';
 import 'package:scr_amenities/screens/amenities_list.dart';
 import 'package:scr_amenities/screens/porterWebview.dart';
@@ -7,11 +8,12 @@ import 'dart:convert';
 import 'package:scr_amenities/screens/base_url.dart';
 
 
-
+// Defining the Home widget that extends StatefulWidget
 class Home extends StatefulWidget {
   final String selectedStation;
   
 
+  // Constructor to receive the selected station name
   const Home({Key? key, required this.selectedStation}) : super(key: key);
 
   @override
@@ -19,9 +21,12 @@ class Home extends StatefulWidget {
   
 }
 
+// State class for the Home widget
 class _HomeState extends State<Home> {
+    // List to store data fetched from the API
   List<Map<String, dynamic>> dataa = [];
 
+  // List of static data containing amenities information
   final List<Map<String, dynamic>> staticData = [
     {
       'id':'01',
@@ -190,9 +195,12 @@ class _HomeState extends State<Home> {
      
   ];
 
+  // Method to fetch data from the API
   Future<void> fetchData() async {
+        // Constructing the API endpoint URL
     final String url = base_url + '/stnam';
 
+    // Making a POST request to the API with station name as a parameter
     final response = await http.post(
       Uri.parse(url),
       headers: {
@@ -203,37 +211,46 @@ class _HomeState extends State<Home> {
       }),
     );
 
+    // Handling the API response
     if (response.statusCode == 200) {
       print('API Response: ${response.body}');
       final Map<String, dynamic> responseData = json.decode(response.body);
 
       if (responseData['status'] == 'ok') {
+                // Parsing and updating the data if the API response is successful
         final List<dynamic> parsedData = responseData['data'];
 
         setState(() {
           dataa = List<Map<String, dynamic>>.from(parsedData);
         });
       } else {
+                // Logging the API status if it is not 'ok'
         print('API Status: ${responseData['status']}');
       }
     } else {
+            // Logging the API error if the response status code is not 200
       print('API Error: ${response.statusCode}');
       // Handle error
     }
   }
 
+  // Method to fetch TAD (Train Arrival/Departure) data from the API
   Future<String> fetchtaddata() async {
+        // Constructing the TAD API endpoint URL
     final String url = base_url + '/gettadurl';
     final body = {'station': widget.selectedStation, 'amenityType': 'TAD'};
 
     try {
+            // Making a POST request to the TAD API
       final response = await http.post(Uri.parse(url), body: body);
+            // Handling the TAD API response
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         if (jsonData is List && jsonData.isNotEmpty) {
           final firstMap = jsonData[0] as Map<String, dynamic>;
           final url = firstMap['url'] as String?;
           if (url != null && url.isNotEmpty) {
+     // Returning the TAD URL if available in the response
             return url;
           } else {
             throw Exception('URL not found in the API response');
@@ -250,17 +267,21 @@ class _HomeState extends State<Home> {
     }
   }
 
+
+  // Initializing data fetching when the widget is created
   @override
   void initState() {
     super.initState();
     fetchData();
   }
 
-
+  // Building the UI of the Home widget
   @override
   Widget build(BuildContext context) {
+        // Extracting the selected station name from the widget
     String selectedStation = widget.selectedStation;
 
+    // Calculating card dimensions based on screen width
     final screenWidth = MediaQuery.of(context).size.width;
     final cardsPerRow = 3;
     final cardSpacing = 120.0;
@@ -268,6 +289,7 @@ class _HomeState extends State<Home> {
         (screenWidth - (cardsPerRow - 1) * cardSpacing) / cardsPerRow;
     final cardHeight = cardWidth + 30;
 
+    // Building the scaffold with an app bar and a scrollable body
     return Scaffold(
       appBar: AppBar(
         title: Text('Home'),
@@ -276,6 +298,7 @@ class _HomeState extends State<Home> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+ // Displaying a welcome message for the selected station
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Text(
@@ -288,6 +311,7 @@ class _HomeState extends State<Home> {
                   textAlign: TextAlign.center,
                 ),
               ),
+       // Displaying amenity cards in rows based on staticData and dataa
               Column(
                 children: List.generate(
                   (staticData.length / cardsPerRow).ceil(),
